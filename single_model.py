@@ -153,13 +153,6 @@ class single_model:
         [boxes, scores, classes, num_detections],
         feed_dict={image_tensor: image_np_expanded})
 
-    # General post processing
-    label_id_offset = 1
-    num_detections = np.squeeze(num_detections, axis=0)
-    scores = np.squeeze(scores, axis=0)
-    boxes = np.squeeze(boxes, axis=0)
-    classes = np.squeeze(classes, axis=0) + label_id_offset
-
     return boxes, scores, classes, num_detections
 
 

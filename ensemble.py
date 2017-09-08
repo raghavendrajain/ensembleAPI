@@ -42,10 +42,6 @@ class ensemble:
     return self._models_list
 
   @property
-  def number_models(self):
-    return len(self.models_list)
-
-  @property
   def default_model(self):
     return self.models_list[0]
 
@@ -159,7 +155,7 @@ class ensemble:
     for model in self.models_list:
       inp = model.inputs_firstStage_tensors
       proposals[model.name] = model.session.run(
-          scenarios['proposals'][model.name], 
+          self.scenarios['proposals'][model.name], 
           feed_dict={inp['image']: image}
       )
 
@@ -171,7 +167,7 @@ class ensemble:
     for model in self.models_list:
       inp = model.inputs_secondStage_tensors
       detections[model.name] = model.session.run(
-        scenarios['detections'][model.name], 
+        self.scenarios['detections'][model.name], 
         feed_dict={inp['rpn_feat']:    proposals[model.name]['prediction_dict']['rpn_features_to_crop'],
                    inp['image_shape']: proposals[model.name]['prediction_dict']['image_shape'],
                    inp['prop_boxes']:  ensembled_proposals['proposal_boxes_normalized'],
@@ -184,20 +180,18 @@ class ensemble:
     # Postprocess
     inp = self.inputs_postProcess_tensors
     postprocessed_detections = self.session.run(
-        scenarios['post_process'], 
-        feed_dict={inp['class_predictions']:     ensembled_detections['class_predictions_with_background'],
-                   inp['refined_box_encodings']: ensembled_detections['refined_box_encodings'],
-                   inp['proposal_boxes']:        ensembled_detections['proposal_boxes'],
-                   inp['num_proposals']:         ensembled_detections['num_proposals'], 
-                   inp['image_shape']:           ensembled_detections['image_shape']}
+        self.scenarios['post_process'], 
+        feed_dict={inp['class_predictions_with_background']: ensembled_detections['class_predictions_with_background'],
+                   inp['refined_box_encodings']:             ensembled_detections['refined_box_encodings'],
+                   inp['proposal_boxes']:                    ensembled_detections['proposal_boxes'],
+                   inp['num_proposals']:                     ensembled_detections['num_proposals'], 
+                   inp['image_shape']:                       ensembled_detections['image_shape']}
       )
 
-    # General post processing
-    label_id_offset = 1
-    num_detections = np.squeeze(postprocessed_detections['num_detections'], axis=0)
-    scores = np.squeeze(postprocessed_detections['detection_scores'], axis=0)
-    boxes = np.squeeze(postprocessed_detections['detection_boxes'], axis=0)
-    classes = np.squeeze(postprocessed_detections['detection_classes'], axis=0) + label_id_offset
+    num_detections = postprocessed_detections['num_detections']
+    scores = postprocessed_detections['detection_scores']
+    boxes = postprocessed_detections['detection_boxes']
+    classes = postprocessed_detections['detection_classes']
 
     return boxes, scores, classes, num_detections
 

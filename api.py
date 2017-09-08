@@ -63,17 +63,14 @@ class FoodImageRecognitionApi(object):
       # Predict
       boxes, scores, classes, num_detections = \
           model_to_use.predict(readable_image)
-            
+    
     # Parse the result into a json
-    doc = []
-    for i in range(int(num_detections)):
-      # ODAPI returns (ymin, xmin, ymax, xmax) format
-      doc.append({ 'y1':     str(boxes[i][0]),
-                   'x1':     str(boxes[i][1]),
-                   'y2':     str(boxes[i][2]),
-                   'x2':     str(boxes[i][3]),
-                   'score':  str(scores[i]),
-                   'classe': str(classes[i]) })
+    doc = {
+      'boxes': boxes.tolist(), 
+      'scores': scores.tolist(), 
+      'classes': classes.tolist(), 
+      'num_detections': num_detections.tolist(), 
+    }
 
     # Create a JSON representation of the resource
     resp.body = json.dumps(doc, ensure_ascii=False)
@@ -81,6 +78,29 @@ class FoodImageRecognitionApi(object):
     # Worked well
     resp.status = falcon.HTTP_200
 
+
+# List valid models
+class DatasetsInfos(object):
+  def on_get(self, req, resp):
+    # Parse the request
+    doc = json.load(req.bounded_stream)
+    model_name = doc['model']      or ''
+
+    if model_name.startswith('ensemble'):
+      dataset = ensembles_dict[model_name].dataset_name
+    else:
+      dataset = single_models_dict[model_name].dataset_name
+
+    resp.body = json.dumps(dataset, ensure_ascii=False)
+    resp.status = falcon.HTTP_200
+
+
+# List valid models
+class ValidModelsApi(object):
+  def on_get(self, req, resp):
+    models_list = [e.name for e in ensembles_list] + [m.name for m in single_models_list]
+    resp.body = json.dumps(models_list, ensure_ascii=False)
+    resp.status = falcon.HTTP_200
 
 
 
@@ -125,13 +145,15 @@ if __name__ == '__main__':
 
     # Load the weights for the single models
     for single_model_element in single_models_list:
-        single_model_element.prepare()
+      single_model_element.prepare()
     
 
 
     # Creates the API
     app = falcon.API(middleware=[MultipartMiddleware()])
     app.add_route('/' + cfg.API.ROUTE, FoodImageRecognitionApi())
+    app.add_route('/' + cfg.API.LIST, ValidModelsApi())
+    app.add_route('/' + cfg.API.DATASET, DatasetsInfos())
 
     # Host it in a simple local server
     httpd = simple_server.make_server('', cfg.API.PORT, app)
@@ -139,7 +161,8 @@ if __name__ == '__main__':
     # Serve forever
     print "Serving on " + cfg.API.ADDRESS + "..."
     print "Proposed models:"
-    print '\n'.join(['- ' + m for m in all_models_names])
+    models_list = [e.name for e in ensembles_list] + [m.name for m in single_models_list]
+    print '\n'.join(['- ' + m for m in models_list])
     httpd.serve_forever()
 
 

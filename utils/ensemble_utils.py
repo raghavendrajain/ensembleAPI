@@ -45,24 +45,24 @@ def propose_boxes_only(bm, model, tensors):
   }
 
 def merge_proposals(ensemble, proposals):
-  scores = proposals[ensemble[0]]['proposal_scores'].tolist()
-  boxes = proposals[ensemble[0]]['proposal_boxes_normalized'].tolist()
+  scores = proposals[ensemble[0].name]['proposal_scores'].tolist()
+  boxes = proposals[ensemble[0].name]['proposal_boxes_normalized'].tolist()
 
   for model in ensemble[1:]:
     for batch in range(len(scores)):
-      for ix, s in enumerate(proposals[model]['proposal_scores'][batch]):
+      for ix, s in enumerate(proposals[model.name]['proposal_scores'][batch]):
         if s > scores[batch][-1]:
           scores[batch] = scores[batch][::-1]
           index = len(scores[batch]) - bisect.bisect(scores[batch], s)
           scores[batch] = scores[batch][::-1]
           scores[batch].insert(index, s)
-          boxes[batch].insert(index, proposals[model]['proposal_boxes_normalized'][batch][ix])
+          boxes[batch].insert(index, proposals[model.name]['proposal_boxes_normalized'][batch][ix])
           scores[batch] = scores[batch][:-1]
           boxes[batch] = boxes[batch][:-1]
         else:
           break
 
-  tmp_dict = proposals[ensemble[0]]
+  tmp_dict = proposals[ensemble[0].name]
   tmp_dict.update({'proposal_scores': np.array(scores), 
                    'proposal_boxes_normalized': np.array(boxes)})
   return tmp_dict
@@ -82,13 +82,13 @@ def classify_proposals_only(bm, model, tensors, isRfcn):
   return detections
 
 def merge_detections(ensemble, detections):
-    new_classes_predictions = detections[ensemble[0]]['class_predictions_with_background']
-    new_refined_boxes = detections[ensemble[0]]['refined_box_encodings']
-    new_proposals_boxes = detections[ensemble[0]]['proposal_boxes']
+    new_classes_predictions = detections[ensemble[0].name]['class_predictions_with_background']
+    new_refined_boxes = detections[ensemble[0].name]['refined_box_encodings']
+    new_proposals_boxes = detections[ensemble[0].name]['proposal_boxes']
     for model in ensemble[1:]:
-      new_classes_predictions += detections[model]['class_predictions_with_background']
-      new_refined_boxes += detections[model]['refined_box_encodings']
-      new_proposals_boxes += detections[model]['proposal_boxes']
+      new_classes_predictions += detections[model.name]['class_predictions_with_background']
+      new_refined_boxes += detections[model.name]['refined_box_encodings']
+      new_proposals_boxes += detections[model.name]['proposal_boxes']
     new_classes_predictions /= float(len(ensemble))
     new_refined_boxes /= float(len(ensemble))
     new_proposals_boxes /= float(len(ensemble))
@@ -97,8 +97,8 @@ def merge_detections(ensemble, detections):
       'class_predictions_with_background': new_classes_predictions, 
       'refined_box_encodings': new_refined_boxes, 
       'proposal_boxes': new_proposals_boxes, 
-      'num_proposals': detections[ensemble[0]]['num_proposals'], 
-      'image_shape': detections[ensemble[0]]['image_shape'], 
+      'num_proposals': detections[ensemble[0].name]['num_proposals'], 
+      'image_shape': detections[ensemble[0].name]['image_shape'], 
     }
 
 

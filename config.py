@@ -73,6 +73,12 @@ __C.API.PORT = 8000
 # The route where to send the GET request
 __C.API.ROUTE = 'detection'
 
+# The route where to send the GET request for listing the models
+__C.API.LIST = 'list_valids'
+
+# The route where to send the GET request for dataset name
+__C.API.DATASET = 'dataset_name'
+
 # The complete path
 __C.API.ADDRESS = 'http://' + 'localhost' + \
                   ':' + str(__C.API.PORT)
