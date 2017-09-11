@@ -1,0 +1,67 @@
+White rice
+Brown rice
+Other rice
+Bread
+Cooked bread
+Sweet bread
+Sandwich
+Other bread
+Ramen
+Udon
+Soba
+Other noodles
+White fish
+Blue fish
+Shellfish
+Crustacean
+Other fish
+Steak
+Beef
+Pork
+Chicken
+Ham - baccon
+Other meat
+Tofu
+Soymilk
+Natto
+Beans
+Other soyfoods
+Eggs
+Egg dish
+Fruits
+Tomato
+Broccoli
+Root crops
+Green and yellow vegetables
+Mushrooms
+Other vegetables
+Milk
+Yogurt
+Cheese
+Other dairy products
+Nuts & seeds
+Water
+Juice
+Vegetable juice
+Coffe - tea
+Alcohol
+Other drinks
+Stir-fried food
+Fried food
+Steamed food
+Grilled food
+Simmered food
+Green salad
+Seaweed salad
+Potato - pumpkins salad
+Proteinized salad
+Vinegared salad
+Soup stock
+Pastry
+Japanese pastry
+Curry
+Rice ball - seaweed roll
+Porridge
+Other rice dishes
+Pot
+Bento

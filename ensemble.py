@@ -191,7 +191,7 @@ class ensemble:
     num_detections = postprocessed_detections['num_detections']
     scores = postprocessed_detections['detection_scores']
     boxes = postprocessed_detections['detection_boxes']
-    classes = postprocessed_detections['detection_classes']
+    classes = np.array([(np.squeeze(postprocessed_detections['detection_classes'], axis=0) + 1).tolist()])
 
     return boxes, scores, classes, num_detections
 
